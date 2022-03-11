@@ -21,20 +21,36 @@ library(treemapify)
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
+  
+  observeEvent(input$info, {
+    showModal(modalDialog(
+      title = "Info Box",
+      HTML("These filters are using a top-down approach. <br><br> To filter using the graphs click on the bars or dots.<br> To unselect use double click inside the area of the graph."),
+      easyClose = TRUE,
+      footer = NULL
+    ))
+  })
 
   selected_occurrence <- reactiveVal()
   selected_decade <- reactiveVal()
   
   df_subset <- reactive({
     years <- paste(seq(input$years[1], input$years[2]))
-    
-    df_years <- df[rowSums(is.na(df %>% select(all_of(years)))) < length(years),] %>%
+    pos1 <- input$top[1]
+    pos2 <- input$top[2]
+      
+    df_subset <- df[rowSums(is.na(df %>% select(all_of(years)))) < length(years),] %>%
       select(all_of(c(non_col_years, years)))
+    
+    df_subset <- df_subset[apply(df_subset %>% select(all_of(years)), 1, function(x) (any(x >= pos1 & x <= pos2, na.rm= TRUE))),]
+    #apply(df_subset[col_years], 1, FUN = min, na.rm = TRUE)
+    #apply(df[col_years], 1, function(x) +(any(x >= position[1] & x <= position[2])))
+      
   })
   
   df_subset_bucket <- reactive({
     buckets <- selected_occurrence()
-    print(buckets)
+    #print(buckets)
     if(is.null(selected_occurrence())){
       df_ <- df_subset() 
     }else{
@@ -58,7 +74,7 @@ server <- function(input, output, session) {
   
   observeEvent(event_data("plotly_click", source = "O"),{
     row <- event_data("plotly_click", source = "O")$y
-    print(row)
+    #print(row)
     if(row %in% selected_occurrence()) return()
     new_rows <- c(row, selected_occurrence())
     selected_occurrence(new_rows)
@@ -66,7 +82,7 @@ server <- function(input, output, session) {
   
   observeEvent(event_data("plotly_click", source = "D"),{
     row <- event_data("plotly_click", source = "D")$x
-    print(row)
+    #print(row)
     if(row %in% selected_decade()) return()
     new_rows <- c(row, selected_decade())
     selected_decade(new_rows)
@@ -131,7 +147,7 @@ server <- function(input, output, session) {
         mutate(current_color = ifelse(released_decade %in% selected_decade(),'#386890', "#7da7ca"))
     }
 
-    print(plot_data)  
+    #print(plot_data)  
     plot <- ggplot(data = plot_data, aes(x = released_decade, y = n)) +
       #geom_line(color = 'steelblue') +
       geom_point(color = "#7da7ca", size = 3) +
@@ -196,6 +212,9 @@ server <- function(input, output, session) {
   
   output$audioplot <-renderPlot({
     #tempo_median <- round(median(df_selected()$tempo, na.rm = TRUE),1)
+    shiny::validate(
+      need(nrow(df_selected())>1, "You need more songs!")
+    )
 
     p1 <-ggplot(df_selected(), aes(x= tempo)) +
       geom_histogram(aes(y=..count..),alpha=.5, fill = 'steelblue', color = '#7da7ca') +
@@ -284,7 +303,12 @@ server <- function(input, output, session) {
   })
   
   output$audiocorr <-renderPlot({
-  corr <- cor(df_selected()[audio_features], use = "complete.obs")
+  
+  shiny::validate(
+    need(nrow(df_selected())>1, "You need more songs!")
+  )
+    
+  corr <- cor(df_selected()[audio_features], use = "complete.obs")  
   ggcorrplot(corr, hc.order = TRUE, ggtheme = ggplot2::theme_minimal,
              type = "upper", outline.col = "white", lab = TRUE,
              colors = c("#6D9EC1", "white", "#E46726"))
@@ -371,7 +395,7 @@ server <- function(input, output, session) {
     diag(corr) <- 0
     corr <- abs(corr)
     feature <- which(corr == max(corr), arr.ind = TRUE) %>% rownames()
-    print(feature)
+    #print(feature)
     tagList(
       renderText(
         paste("Relation between ", feature[1], " and ", feature[2])
@@ -380,6 +404,9 @@ server <- function(input, output, session) {
   })
   
   output$corr_scatter <-renderPlot({
+    shiny::validate(
+      need(nrow(df_selected())>1, "You need more songs!")
+    )
     # Getting the two more correlated
     corr <- cor(df_selected()[audio_features], use = "complete.obs")
     diag(corr) <- 0
