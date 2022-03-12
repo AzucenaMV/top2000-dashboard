@@ -17,10 +17,14 @@ library(shinyWidgets)
 library(ggpubr)
 library(RColorBrewer)
 library(treemapify)
-
+library(shinyscreenshot)
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
+  
+  observeEvent(input$s, {
+    screenshot()
+  })
   
   observeEvent(input$info, {
     showModal(modalDialog(
