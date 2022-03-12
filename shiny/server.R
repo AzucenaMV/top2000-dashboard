@@ -117,13 +117,14 @@ server <- function(input, output, session) {
     }
     
     plot_ly(
-      plot_data, x = ~n, y = ~song_occurance_bucket, type = 'bar', source = "O", orientation = 'h', marker = list(color = ~current_color)
+      plot_data, x = ~n, y = ~song_occurance_bucket, type = 'bar', source = "O", orientation = 'h', marker = list(color = ~current_color),
+      hovertemplate = paste("Counts :", plot_data$n, "<extra></extra>") #text = ~n 
     ) %>%
       config(displayModeBar = FALSE) %>%
-      layout(#title = list(text = "Songs by times of occurrance", y = 1.5), 
+      layout(#title = list(text = "Songs by times of occu rrance", y = 1.5), 
              title = NULL,
              xaxis = list(title = sprintf("<i>%s</i>", "Counts"), range = c(0,1600), titlefont = list(size = 15), tickfont = list(size = 11)), 
-             yaxis = list(title = sprintf("<i>%s</i>", "Groups of occurrance"), titlefont = list(size = 15), tickfont = list(size = 11)))
+             yaxis = list(title = sprintf("<i>%s</i>", "Groups of occurrance"), titlefont = list(size = 15), tickfont = list(size = 11))) 
   })
   
 
@@ -152,7 +153,7 @@ server <- function(input, output, session) {
     }
 
     #print(plot_data)  
-    plot <- ggplot(data = plot_data, aes(x = released_decade, y = n)) +
+    plot <- ggplot(data = plot_data, aes(x = released_decade, y = n, text = paste("Counts :",n))) +
       #geom_line(color = 'steelblue') +
       geom_point(color = "#7da7ca", size = 3) +
       geom_bar(stat = 'identity', fill = "steelblue", width = 0.5) +
@@ -171,9 +172,9 @@ server <- function(input, output, session) {
     
       #scale_x_continuous("released_decade", labels = as.character(released_decade), breaks = released_decade)
     #theme_light()
-    ggplotly(plot, source = "D") %>%
+    ggplotly(plot, source = "D", tooltip = "text") %>%
       config(displayModeBar = FALSE) %>%
-      add_trace(x = plot_data$released_decade, y = plot_data$n ,mode = "markers", marker = list(color = plot_data$current_color, size = 13))
+      add_trace(x = plot_data$released_decade, y = plot_data$n ,mode = "markers", marker = list(color = plot_data$current_color, size = 13), hoverinfo = "none")
                 
     #plot_ly(
     #  plot_data, x = ~song_occurance_bucket, y = ~n, type = 'bar' 
@@ -181,6 +182,10 @@ server <- function(input, output, session) {
   })
   
   output$gender <- renderPlot({
+    shiny::validate(
+      need(nrow(df_selected())>0, "Oops, no songs were found with those filters!")
+    )
+    
     df_gender <- df_selected() %>%
       count(artist_pronoun) %>%
       replace_na(list(artist_pronoun = "na")) %>%
@@ -320,6 +325,10 @@ server <- function(input, output, session) {
   
   output$country <-renderPlot({
     
+    shiny::validate(
+      need(nrow(df_selected())>0, "Oops, no songs were found with those filters!")
+    )
+    
   df_country <- df_selected() %>%
     replace_na(list(artist_country_name = "Unknown")) %>%
     count(artist_country_name, continent) %>%
@@ -369,6 +378,10 @@ server <- function(input, output, session) {
   })
   
   output$genre <-renderPlot({
+    shiny::validate(
+      need(nrow(df_selected())>0, "Oops, no songs were found with those filters!")
+    )
+    
     df_genre <- df_selected() %>%
       count(genre_groups, name = 'Counts')
     
