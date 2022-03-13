@@ -18,6 +18,7 @@ library(ggpubr)
 library(RColorBrewer)
 library(treemapify)
 library(shinyscreenshot)
+library(ggpubr)
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
@@ -208,7 +209,7 @@ server <- function(input, output, session) {
 
   })
   
-  output$audioplot <-renderPlotly({
+  output$audioplot <-renderPlot({
     shiny::validate(
       need(nrow(df_selected())>1, "You need more songs!")
     )
@@ -218,94 +219,106 @@ server <- function(input, output, session) {
       theme_minimal() +
       ylab("Counts") +
       xlab("tempo (BPM)") +
-      geom_vline(xintercept = tempo_median,size=1, linetype = "dashed", col = "#315b7d", text = paste("Median : ", tempo_median)) +
-      geom_text(x= tempo_median, label= paste("Median: \n", tempo_median), y = Inf, color="#315b7d", vjust = 2, hjust = -.4, label.size = 1) +
+      geom_vline(aes(xintercept = tempo_median, color = "Median"),size=1, linetype = "dashed") +
+      scale_color_manual(name = "", values = c(Median = "#315b7d")) +
+      geom_text(x= tempo_median, label= round(tempo_median,1), y = Inf, color="#315b7d", vjust = 2, hjust = -.4, size = 5) +
       theme(
-        axis.title.x = element_text(color = "grey40", size = 12, face = "italic"),
-        axis.title.y = element_text(color = "grey40", size = 12, face = "italic"),
-        axis.text.y = element_text(size = 10), 
-        axis.text.x = element_text(size = 10), 
+        legend.title = element_text(size = 15, face = "bold"),
+        legend.text=element_text(size=14),
+        axis.title.x = element_text(color = "grey40", size = 14, face = "italic"),
+        axis.title.y = element_text(color = "grey40", size = 14, face = "italic"),
+        axis.text.y = element_text(size = 12), 
+        axis.text.x = element_text(size = 12), 
       ) 
     
+    median_danceability <- median(df_selected()$danceability, na.rm = TRUE)
     p2 <-ggplot(df_selected(), aes(x= danceability)) +
       geom_histogram(aes(y=..count..),alpha=.5, fill = 'steelblue', color = '#7da7ca') +
       theme_minimal() +
       ylab("Counts") +
-      geom_vline(xintercept = median(df_selected()$danceability, na.rm = TRUE),size=1, linetype = "dashed", col = "#315b7d") +
+      geom_vline(aes(xintercept = median_danceability),size=1, linetype = "dashed", color = "#315b7d") +
+      geom_text(x= median_danceability, label= round(median_danceability,1), y = Inf, color="#315b7d", vjust = 2, hjust = -.4, size = 5) +
+      #scale_color_manual(name = "", values = c(Median = "#315b7d")) +
       theme(
-        axis.title.x = element_text(color = "grey40", size = 12, face = "italic"),
-        axis.title.y = element_text(color = "grey40", size = 12, face = "italic"),
-        axis.text.y = element_text(size = 10), 
-        axis.text.x = element_text(size = 10), 
+        legend.title = element_text(size = 15, face = "bold"),
+        axis.title.x = element_text(color = "grey40", size = 14, face = "italic"),
+        axis.title.y = element_text(color = "grey40", size = 14, face = "italic"),
+        axis.text.y = element_text(size = 12), 
+        axis.text.x = element_text(size = 12), 
       ) 
     
+    median_energy <- median(df_selected()$energy, na.rm = TRUE)
     p3 <-ggplot(df_selected(), aes(x= energy)) +
       geom_histogram(aes(y=..count..),alpha=.5, fill = 'steelblue', color = '#7da7ca') +
+      geom_text(x= median_energy, label= round(median_energy,1), y = Inf, color="#315b7d", vjust = 2, hjust = -.4, size = 5) +
       theme_minimal() +
       ylab("Counts") +
-      geom_vline(xintercept = median(df_selected()$energy, na.rm = TRUE),size=1, linetype = "dashed", col = "#315b7d") +
+      geom_vline(xintercept = median_energy,size=1, linetype = "dashed", col = "#315b7d") +
       theme(
-        axis.title.x = element_text(color = "grey40", size = 12, face = "italic"),
-        axis.title.y = element_text(color = "grey40", size = 12, face = "italic"),
-        axis.text.y = element_text(size = 10), 
-        axis.text.x = element_text(size = 10), 
+        axis.title.x = element_text(color = "grey40", size = 14, face = "italic"),
+        axis.title.y = element_text(color = "grey40", size = 14, face = "italic"),
+        axis.text.y = element_text(size = 12), 
+        axis.text.x = element_text(size = 12), 
       )
     
+    median_valence <- median(df_selected()$valence, na.rm = TRUE)
     p4 <-ggplot(df_selected(), aes(x= valence)) +
       geom_histogram(aes(y=..count..),alpha=.5, fill = 'steelblue', color = '#7da7ca') +
       theme_minimal() +
       ylab("Counts") +
-      geom_vline(xintercept = median(df_selected()$valence, na.rm = TRUE),size=1, linetype = "dashed", col = "#315b7d") +
+      geom_vline(xintercept = median_valence,size=1, linetype = "dashed", col = "#315b7d") +
+      geom_text(x= median_valence, label= round(median_valence,1), y = Inf, color="#315b7d", vjust = 2, hjust = -.4, size = 5) +
       theme(
-        axis.title.x = element_text(color = "grey40", size = 12, face = "italic"),
-        axis.title.y = element_text(color = "grey40", size = 12, face = "italic"),
-        axis.text.y = element_text(size = 10), 
-        axis.text.x = element_text(size = 10), 
+        axis.title.x = element_text(color = "grey40", size = 14, face = "italic"),
+        axis.title.y = element_text(color = "grey40", size = 14, face = "italic"),
+        axis.text.y = element_text(size = 12), 
+        axis.text.x = element_text(size = 12), 
       )
   
-    
+    median_loudness <- median(df_selected()$loudness, na.rm = TRUE)
     p5 <-ggplot(df_selected(), aes(x= loudness)) +
       geom_histogram(aes(y=..count..),alpha=.5, fill = 'steelblue', color = '#7da7ca') +
       theme_minimal() +
       ylab("Counts") +
       xlab("loudness (DB)") +
-      geom_vline(xintercept = median(df_selected()$loudness, na.rm = TRUE),size=1, linetype = "dashed", col = "#315b7d") +
+      geom_vline(xintercept = median_loudness,size=1, linetype = "dashed", col = "#315b7d") +
+      geom_text(x= median_loudness, label= round(median_loudness,1), y = Inf, color="#315b7d", vjust = 2, hjust = -.4, size = 5) +
       theme(
-        axis.title.x = element_text(color = "grey40", size = 12, face = "italic"),
-        axis.title.y = element_text(color = "grey40", size = 12, face = "italic"),
-        axis.text.y = element_text(size = 10), 
-        axis.text.x = element_text(size = 10), 
+        axis.title.x = element_text(color = "grey40", size = 14, face = "italic"),
+        axis.title.y = element_text(color = "grey40", size = 14, face = "italic"),
+        axis.text.y = element_text(size = 12), 
+        axis.text.x = element_text(size = 12), 
       )
     
+    median_instrumentalness <- median(df_selected()$instrumentalness, na.rm = TRUE)
     p6 <-ggplot(df_selected(), aes(x= instrumentalness)) +
       geom_histogram(aes(y=..count..),alpha=.5, fill = 'steelblue', color = '#7da7ca') +
       theme_minimal() +
       ylab("Counts") +
-      geom_vline(xintercept = median(df_selected()$instrumentalness, na.rm = TRUE),size=1, linetype = "dashed", col = "#315b7d") +
+      geom_vline(xintercept = median_instrumentalness,size=1, linetype = "dashed", col = "#315b7d") +
+      geom_text(x= median_instrumentalness, label= round(median_instrumentalness,1), y = Inf, color="#315b7d", vjust = 2, hjust = -.4, size = 5) +
       theme(
-        axis.title.x = element_text(color = "grey40", size = 12, face = "italic"),
-        axis.title.y = element_text(color = "grey40", size = 12, face = "italic"),
-        axis.text.y = element_text(size = 10), 
-        axis.text.x = element_text(size = 10), 
+        axis.title.x = element_text(color = "grey40", size = 14, face = "italic"),
+        axis.title.y = element_text(color = "grey40", size = 14, face = "italic"),
+        axis.text.y = element_text(size = 12), 
+        axis.text.x = element_text(size = 12), 
       )
     
-    p1 <- ggplotly(p1) %>%
-      style(hoverinfo = "none", traces = 1) 
+    #p1 <- ggplotly(p1) %>%
+    #  style(hoverinfo = "none", traces = 1) 
     
-    p2 <- ggplotly(p2) 
+    #p2 <- ggplotly(p2) 
     
-    p3 <- ggplotly(p3) 
-    p4 <- ggplotly(p4) 
-    p5 <- ggplotly(p5) 
-    p6 <- ggplotly(p6) 
+    #p3 <- ggplotly(p3) 
+    #p4 <- ggplotly(p4) 
+    #p5 <- ggplotly(p5) 
+    #p6 <- ggplotly(p6) 
     
+    p1_legend <- get_legend(p1)
     
-    
-    subplot(p1,p2,p3,p4,p5,p6, nrows = 2, margin = c(.02,.02,0.2,0.1), titleX = TRUE, titleY = TRUE) 
-    #grid.arrange(p1,p2,p3,p4,p5,p6, ncol=3 ) #,
-                 #top=textGrob("Histograms",gp=gpar(fontsize=16,font=3))
-    #)
-    
+    #subplot(p1,p2,p3,p4,p5,p6, nrows = 2, margin = c(.02,.02,0.2,0.1), titleX = TRUE, titleY = TRUE) 
+    grid.arrange(arrangeGrob(p1 + theme(legend.position = "none"),p2,p3,p4,p5,p6, nrow = 2, ncol = 3), p1_legend, ncol = 2, widths=c(15, 1))
+
   })
   
   output$audiocorr <-renderPlot({
@@ -314,10 +327,16 @@ server <- function(input, output, session) {
     need(nrow(df_selected())>1, "You need more songs!")
   )
     
-  corr <- cor(df_selected()[audio_features], use = "complete.obs")  
-  ggcorrplot(corr, hc.order = TRUE, ggtheme = ggplot2::theme_minimal,
-             type = "upper", outline.col = "white", lab = TRUE,
-             colors = c("#6D9EC1", "white", "#E46726"))
+  corr <- cor(df_selected()[audio_features], use = "complete.obs") #[,audio_features]
+  ggcorrplot(corr, ggtheme = ggplot2::theme_minimal,
+             type = "upper", outline.col = "white", lab = TRUE, #show.diag = TRUE, #method = 'circle',
+             colors = c("#6D9EC1", "white", "#E46726")) +
+    theme(
+    axis.text.x = element_text(color = "grey40", size = 13, face = "italic"),
+    axis.text.y = element_text(color = "grey40", size = 13, face = "italic"),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    )
   })
   
   output$country <-renderPlot({
@@ -340,14 +359,12 @@ server <- function(input, output, session) {
   
   ggdotchart(df_country, x = "key", y = "sum",
              color = "continent",                                # Color by groups
-             #palette = brewer.pal(n = 9, name = "Blues")[3:9], # Custom color palette
              palette = brewer.pal(n = 9, name = "YlGnBu")[3:9],
              sorting = "descending",                       # Sort value in descending order
              add = "segments",                             # Add segments from y = 0 to dots
              rotate = TRUE,                                # Rotate vertically
              ylab = "Counts", 
              xlab = "",
-             #group = "continent",                                # Order by groups
              dot.size = 13,                                 # Large dot size
              label = "sum",                        # Add mpg values as dot labels
              font.label = list(color = "gray100", size = 13, 
@@ -444,7 +461,8 @@ server <- function(input, output, session) {
   
   output$table = DT::renderDataTable({
     datatable(df_selected()[c("artist","title","released_date","genre_groups","artist_country_name")], 
-              options = list("pageLength" = 50, scrollY = "680px"))
+              colnames=c("Artist", "Song", "Released date", "Genre", "Country"),
+              options = list("pageLength" = 50, scrollY = "660px"))
   })
   
   
