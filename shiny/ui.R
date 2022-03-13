@@ -99,7 +99,8 @@ ui <- navbarPage("Top2000",
                                                div(style = "margin-top: 10px"),
                                                tags$p(strong("Histograms", style =  "font-size:18px;color:#585a58")),
                                                div(style = "margin-top: -10px"),
-                                               plotOutput("audioplot", height = 360),
+                                               plotlyOutput("audioplot", height = 400),
+                                               #plotOutput("audioplot", height = 360),
                                                div(style = "margin-top: 5px"),
                                                #br(),
                                                fluidRow(
@@ -125,6 +126,10 @@ ui <- navbarPage("Top2000",
                                                #          plotOutput("audiocorr")
                                                #   )
                                                # )
+                                      ),
+                                      tabPanel("List of Songs",
+                                               div(style = 'overflow-y: scroll',
+                                               DT::dataTableOutput("table"))
                                       ),
 
                           )
