@@ -1,12 +1,3 @@
-#
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
 library(plotly)
 library(ggplot2)
@@ -20,7 +11,6 @@ library(treemapify)
 library(shinyscreenshot)
 library(ggpubr)
 
-# Define server logic required to draw a histogram
 server <- function(input, output, session) {
   
   observeEvent(input$s, {
@@ -48,14 +38,12 @@ server <- function(input, output, session) {
       select(all_of(c(non_col_years, years)))
     
     df_subset <- df_subset[apply(df_subset %>% select(all_of(years)), 1, function(x) (any(x >= pos1 & x <= pos2, na.rm= TRUE))),]
-    #apply(df_subset[col_years], 1, FUN = min, na.rm = TRUE)
-    #apply(df[col_years], 1, function(x) +(any(x >= position[1] & x <= position[2])))
       
   })
   
   df_subset_bucket <- reactive({
     buckets <- selected_occurrence()
-    #print(buckets)
+
     if(is.null(selected_occurrence())){
       df_ <- df_subset() 
     }else{
@@ -79,7 +67,7 @@ server <- function(input, output, session) {
   
   observeEvent(event_data("plotly_click", source = "O"),{
     row <- event_data("plotly_click", source = "O")$y
-    #print(row)
+
     if(row %in% selected_occurrence()) return()
     new_rows <- c(row, selected_occurrence())
     selected_occurrence(new_rows)
@@ -87,7 +75,7 @@ server <- function(input, output, session) {
   
   observeEvent(event_data("plotly_click", source = "D"),{
     row <- event_data("plotly_click", source = "D")$x
-    #print(row)
+
     if(row %in% selected_decade()) return()
     new_rows <- c(row, selected_decade())
     selected_decade(new_rows)
@@ -122,16 +110,13 @@ server <- function(input, output, session) {
       hovertemplate = paste("Counts :", plot_data$n, "<extra></extra>") #text = ~n 
     ) %>%
       config(displayModeBar = FALSE) %>%
-      layout(#title = list(text = "Songs by times of occu rrance", y = 1.5), 
+      layout(
              title = NULL,
              xaxis = list(title = sprintf("<i>%s</i>", "Counts"), range = c(0,1600), titlefont = list(size = 15), tickfont = list(size = 11)), 
              yaxis = list(title = sprintf("<i>%s</i>", "Groups of occurrance"), titlefont = list(size = 15), tickfont = list(size = 11))) 
   })
   
 
-  
-  
-  #output$artist_occurrance_hover <- event_data("plotly_click")
   output$occurrance_click <- renderPrint({
     event_data("plotly_click", source = "O")
   })
@@ -197,9 +182,7 @@ server <- function(input, output, session) {
             axis.title.y = element_blank(),
             panel.grid.minor.y=element_blank(),
             panel.grid.major.y=element_blank(),
-            #plot.title = element_text(color = "grey30", size = 16, hjust = .07),
             axis.title.x = element_text(color = "grey40", size = 15, face = "italic"),
-            #plot.title.position = "plot",
             legend.position="none") +
       ylab("Percentage") +
       scale_y_continuous(labels = scales::percent_format(scale = 1)) +
@@ -238,7 +221,6 @@ server <- function(input, output, session) {
       ylab("Counts") +
       geom_vline(aes(xintercept = median_danceability),size=1, linetype = "dashed", color = "#315b7d") +
       geom_text(x= median_danceability, label= round(median_danceability,1), y = Inf, color="#315b7d", vjust = 2, hjust = -.4, size = 5) +
-      #scale_color_manual(name = "", values = c(Median = "#315b7d")) +
       theme(
         legend.title = element_text(size = 15, face = "bold"),
         axis.title.x = element_text(color = "grey40", size = 14, face = "italic"),
@@ -304,19 +286,7 @@ server <- function(input, output, session) {
         axis.text.x = element_text(size = 12), 
       )
     
-    #p1 <- ggplotly(p1) %>%
-    #  style(hoverinfo = "none", traces = 1) 
-    
-    #p2 <- ggplotly(p2) 
-    
-    #p3 <- ggplotly(p3) 
-    #p4 <- ggplotly(p4) 
-    #p5 <- ggplotly(p5) 
-    #p6 <- ggplotly(p6) 
-    
     p1_legend <- get_legend(p1)
-    
-    #subplot(p1,p2,p3,p4,p5,p6, nrows = 2, margin = c(.02,.02,0.2,0.1), titleX = TRUE, titleY = TRUE) 
     grid.arrange(arrangeGrob(p1 + theme(legend.position = "none"),p2,p3,p4,p5,p6, nrow = 2, ncol = 3), p1_legend, ncol = 2, widths=c(15, 1))
 
   })
@@ -377,18 +347,13 @@ server <- function(input, output, session) {
     theme(
     axis.text=element_text(size=16),
     legend.position="right",
-    #legend.box = "horizontal",
     legend.text=element_text(size=16),
     legend.title=element_blank(),
     axis.title.x = element_text(color = "grey40", size = 15, face = "italic"),
     plot.title = element_text(color = "grey30", size = 18, hjust = -.4, face = "bold"),
     ) +
     ggtitle(NULL)+
-    #ggtitle("Songs by Country and Continent") +
-    guides(color = guide_legend(#title.position = "top", 
-                                # hjust = 0.5 centres the title horizontally
-                                #hjust = -1,
-                                label.position = "bottom")) 
+    guides(color = guide_legend(label.position = "bottom")) 
   })
   
   output$genre <-renderPlot({
@@ -400,7 +365,6 @@ server <- function(input, output, session) {
       count(genre_groups, name = 'Counts') %>%
       mutate(proportion =  Counts/sum(Counts)) %>%
       mutate(only_one = ifelse(proportion < .008, TRUE, FALSE)) %>%
-      #mutate(only_one = ifelse(Counts < 20, TRUE, FALSE)) %>%
       mutate(genre_groups = ifelse(only_one,"Others",genre_groups)) %>%
       group_by(genre_groups) %>%
       summarize(Counts = sum(Counts)) 
@@ -449,7 +413,6 @@ server <- function(input, output, session) {
       xlab(features[1]) +
       ylab(features[2]) +
       ggtitle(NULL) +
-      #ggtitle(paste0("Correlation between ",features[1]," and ",features[2])) +
       theme(
         axis.title.x = element_text(color = "grey40", size = 14, face = "italic"),
         axis.title.y = element_text(color = "grey40", size = 14, face = "italic"),
