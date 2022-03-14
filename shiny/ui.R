@@ -37,7 +37,8 @@ ui <- navbarPage("Top2000",
                               tags$p(strong("Years:", style = "font-size:18px;color:#585a58")),
                               div(style = "margin-top: -13px"),
                               tagList(
-                                tags$style(type = 'text/css', '#years_slider .irs-grid-text, .irs-from, .irs-to, .irs-min, .irs-max {font-size: 15px; color:#585a58}'),
+                                tags$style(type = 'text/css', '#years_slider .irs-grid-text, .irs-from, .irs-to {font-size: 15px; color:#585a58}',
+                                           '#years_slider .irs-min, .irs-max {visibility: hidden !important;}'),
                                 div(id = 'years_slider',
                                 sliderInput("years", NULL, sep= "",
                                             min = 1999, max = 2021, value = c(1999,2021), width = "100%", step = 1, ticks = FALSE)
@@ -48,7 +49,8 @@ ui <- navbarPage("Top2000",
                               div(style = "margin-top: -13px"),
                               tagList(
                                 tags$style(type = 'text/css', '#top_slider .irs-grid-text {font-size: 15px; color:#585a58}",
-                                           #top_slider .irs-grid-pol {background:#585a58}'), 
+                                           #top_slider .irs-grid-pol {background:#585a58}',
+                                           '#top_slider .irs-min, .irs-max {visibility: hidden !important;}'), 
                                 div(id = 'top_slider',
                                 sliderInput("top", NULL, sep= "",
                                             min = 1, max = 2000, value = c(1,2000), width = "100%", step = 1, ticks = FALSE)

@@ -13,3 +13,15 @@ get_legend<-function(a.gplot){
   leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
   legend <- tmp$grobs[[leg]]
   return(legend)}
+
+df[df$artist == 'Pearl Jam',c('genre_groups')] <- "rock"
+
+df_unique_genres <- df %>% 
+  count(artist, genre_groups) %>%
+  mutate(n = ifelse(genre_groups == 'unknown', 0, n)) %>%
+  arrange(artist, desc(n)) %>%
+  distinct(artist, .keep_all = TRUE)
+
+df$genre_groups <- NULL
+
+df <- df %>% left_join(df_unique_genres, by = 'artist')

@@ -361,12 +361,12 @@ server <- function(input, output, session) {
       need(nrow(df_selected())>0, "Oops, no songs were found with those filters!")
     )
     
-    df_genre <- df %>%
+    df_genre <- df_selected() %>%
       count(genre_groups, name = 'Counts') %>%
       mutate(proportion =  Counts/sum(Counts)) %>%
       mutate(only_one = ifelse(proportion < .008, TRUE, FALSE)) %>%
       mutate(genre_groups = ifelse(only_one,"Others",genre_groups)) %>%
-      group_by(genre_groups) %>%
+      group_by(genre_groups) %>%                      
       summarize(Counts = sum(Counts)) 
     
     ggplot(df_genre, aes(area = Counts, fill = Counts, label = paste(genre_groups, Counts, sep = "\n"))) +
@@ -423,8 +423,9 @@ server <- function(input, output, session) {
   })
   
   output$table = DT::renderDataTable({
-    datatable(df_selected()[c("artist","title","released_date","genre_groups","artist_country_name")], 
-              colnames=c("Artist", "Song", "Released date", "Genre", "Country"),
+    col_years <- colnames(df_selected())[grepl("[0-9]{4}", colnames(df_selected()))]
+    datatable(df_selected()[c("artist","title","released_date","genre_groups","artist_country_name", col_years)], 
+              colnames=c("Artist", "Song", "Released date", "Genre", "Country", col_years), rownames = FALSE,
               options = list("pageLength" = 50, scrollY = "660px"))
   })
   
