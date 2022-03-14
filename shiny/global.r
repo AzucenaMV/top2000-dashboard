@@ -20,7 +20,8 @@ df_unique_genres <- df %>%
   count(artist, genre_groups) %>%
   mutate(n = ifelse(genre_groups == 'unknown', 0, n)) %>%
   arrange(artist, desc(n)) %>%
-  distinct(artist, .keep_all = TRUE)
+  distinct(artist, .keep_all = TRUE) %>%
+  select(artist,genre_groups)
 
 df$genre_groups <- NULL
 
